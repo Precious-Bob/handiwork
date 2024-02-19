@@ -4,6 +4,8 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const MongoStore = require('connect-mongo');
 
+const userRouter = require('./routes/userRoutes');
+
 const connectDB = require('./db/db');
 
 const app = express();
@@ -28,6 +30,7 @@ app.use(
     }),
   })
 );
+app.use('/api/users', userRouter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
