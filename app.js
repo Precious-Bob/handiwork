@@ -1,5 +1,5 @@
-require('dotenv').config();
 const express = require('express');
+const morgan = require('morgan');
 // const session = require('express-session');
 // const cookieParser = require('cookie-parser');
 // const MongoStore = require('connect-mongo');
@@ -10,11 +10,15 @@ const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// prints the route called, only in dev env, not prod
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 //connect to DB
 connectDB();
@@ -39,9 +43,9 @@ app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
 });
 
-
 app.use(globalErrorHandler);
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+//console.log(process.env);
+//reading of .env file happens once, in the server file
+
+module.exports = app;
