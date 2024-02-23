@@ -68,7 +68,7 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-userSchema.methods.comparePassword = function (password) {
+userSchema.methods.comparePassword = async function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
@@ -81,10 +81,11 @@ userSchema.methods.generateAuthToken = function () {
   return token;
 };
 
-//delete confirmPassword
+//delete password and confirmPassword from res.json
 userSchema.methods.toJSON = function () {
   const userObj = this.toObject();
   delete userObj.confirmPassword;
+  delete userSchema.password;
   return userObj;
 };
 
