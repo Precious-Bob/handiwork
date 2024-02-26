@@ -23,19 +23,32 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   // If email and password is in the req body
-  if (!email || !password) {
-    const err = new AppError('Please provide email and password');
-    return next(err);
+  if (!email || !password)
+    return next(new AppError('Please provide email and password', 400));
 
-    // If user exists with the given email
-    const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email });
 
-    // Check if user exists and password matches
-    if (!user || )
-    const token = user.generateAuthToken();
-  }
-  res.status
+  const token = user.generateAuthToken();
+  if (!user || !(await user.comparePassword(password)))
+    return next(new AppError('Incorrect email or password', 401));
+  es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
 });
 
 // test this with email and password field
 // take if password deletes when user is created
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1. get user from collection
+  const user = await User.findOne({ email });
+
+  // check if posted current password is correct
+  if (!user || !(await user.comparePassword(password))) {
+    return next(new AppError('Incorrect email or password', 401));
+  }
+
+  //if so update password
+  const salt = await bcrypt.genSalt(12);
+  const newPassword = bcrypt.hash(this.password, salt);
+  //log user in, send jwt
+  const token = user.generateAuthToken();
+  es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
+});

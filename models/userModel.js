@@ -57,7 +57,7 @@ userSchema.pre('save', async function (next) {
     // Check if the password is modified and hash it if necessary
     if (this.isModified('password')) {
       const salt = await bcrypt.genSalt(12);
-      this.password = await bcrypt.hash(this.password, salt);
+      this.password = bcrypt.hash(this.password, salt);
     }
 
     // Proceed to the next middleware
@@ -69,7 +69,7 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.methods.comparePassword = async function (password) {
-  return bcrypt.compareSync(password, this.password);
+  return bcrypt.compare(password, this.password);
 };
 
 //  take note of this in adding admin if needed { _id: user._id, admin: user.admin },
@@ -85,7 +85,7 @@ userSchema.methods.generateAuthToken = function () {
 userSchema.methods.toJSON = function () {
   const userObj = this.toObject();
   delete userObj.confirmPassword;
-  delete userSchema.password;
+  delete userObj.password;
   return userObj;
 };
 
