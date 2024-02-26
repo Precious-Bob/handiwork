@@ -2,12 +2,16 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
-exports.getUsers = catchAsync(async (_, _, next) => {
-  const users = User.find();
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find();
   if (!users || users.length === 0)
     return next(new AppError('No users found', 404));
 
-  return res.status(200).json
+  return res.status(200).json({
+    status: 'Success',
+    results: users.length,
+    data: users,
+  });
 });
 
 exports.getSingleUser = catchAsync(async (req, res, next) => {
@@ -18,6 +22,8 @@ exports.getSingleUser = catchAsync(async (req, res, next) => {
     return next(new AppError('No user found', 404));
 
   return res.status(200).json({
+    status: 'Success',
     data: user,
   });
 });
+

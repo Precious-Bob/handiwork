@@ -36,6 +36,17 @@ exports.login = catchAsync(async (req, res, next) => {
 
 // test this with email and password field
 // take if password deletes when user is created
+
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  )
+    token = req.headers.authorization.split(' ')[1];
+  if (!token) return next(new AppError(`You're not logged in!`, 401));
+});
+
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // 1. get user from collection
   const user = await User.findOne({ email });
