@@ -2,39 +2,52 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
+const AppError = require('../utils/AppError');
 
 // Define Joi schema
 const userJoiSchema = Joi.object({
-  firstName: Joi.string().alphanum().min(3).max(30).required().messages({
-    'any.required': 'Please provide your first name',
-  }),
-  lastName: Joi.string().required().min(3).max(30).messages({
-    'any.required': 'Please provide your last name',
-  }),
-  email: Joi.string().email().required().messages({
-    'string.email': 'Please provide a valid email',
-    'any.required': 'Please provide your email',
-  }),
-  address: Joi.string().alphanum().min(3).max(30).required(),
-  password: Joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
-  confirmPassword: Joi.string().valid(Joi.ref('password')).required().messages({
-    'any.only': 'Passwords do not match',
-  }),
+  firstName: Joi.string()
+    .alphanum()
+    .min(3)
+    .max(30)
+    .required()
+    .error(new AppError(`Please provide your first name`, 400)),
+  lastName: Joi.string()
+    .required()
+    .min(3)
+    .max(30)
+    .error(new AppError(`Please provide your last name`, 400)),
+  email: Joi.string()
+    .email()
+    .required()
+    .error(new AppError(`Please provide your a valid email`, 400)),
+  address: Joi.string()
+    .alphanum()
+    .min(3)
+    .max(30)
+    .required()
+    .error(new AppError(`Please provide an address`, 400)),
+  password: Joi.string()
+    .required()
+    .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
+    .error(new AppError(`Please provide a password`, 400)),
+
+  confirmPassword: Joi.string()
+    .valid(Joi.ref('password'))
+    .required()
+    .error(new AppError(`Passwords do not match`, 400)),
 });
 
 // Define Mongoose schema
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: true,
   },
   lastName: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
-    required: true,
     unique: true,
     lowercase: true,
   },
