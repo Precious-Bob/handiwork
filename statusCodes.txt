@@ -22,3 +22,17 @@
 500 Internal Server Error: A generic error message returned when the server encounters an unexpected condition.
 501 Not Implemented: The server does not support the functionality required to fulfill the request.
 503 Service Unavailable: The server is not ready to handle the request.
+
+
+---------------------------------------------------------------------------------------------------------------
+joi error message syntax
+
+Here's a brief explanation of how each rule works:
+
+any.required: Triggered when a field marked as required is missing.
+string.empty: Triggered when a string field is empty.
+string.min: Triggered when a string is shorter than the specified minimum length.
+string.max: Triggered when a string is longer than the specified maximum length.
+string.pattern.base: Triggered when a string does not match the specified pattern.
+string.email: Triggered when a string does not match the email format.
+any.only: Triggered when a field does not match one of the allowed values (in your case, used for password confirmation).

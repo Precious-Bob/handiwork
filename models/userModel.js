@@ -2,40 +2,23 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
-const AppError = require('../utils/AppError');
 
 // Define Joi schema
 const userJoiSchema = Joi.object({
-  firstName: Joi.string()
-    .alphanum()
-    .min(3)
-    .max(30)
-    .required()
-    .error(new AppError(`Please provide your first name`, 400)),
-  lastName: Joi.string()
-    .required()
-    .min(3)
-    .max(30)
-    .error(new AppError(`Please provide your last name`, 400)),
-  email: Joi.string()
-    .email()
-    .required()
-    .error(new AppError(`Please provide your a valid email`, 400)),
-  address: Joi.string()
-    .alphanum()
-    .min(3)
-    .max(30)
-    .required()
-    .error(new AppError(`Please provide an address`, 400)),
-  password: Joi.string()
-    .required()
-    .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
-    .error(new AppError(`Please provide a password`, 400)),
-
-  confirmPassword: Joi.string()
-    .valid(Joi.ref('password'))
-    .required()
-    .error(new AppError(`Passwords do not match`, 400)),
+  firstName: Joi.string().trim().alphanum().min(3).max(30).required(),
+  lastName: Joi.string().trim().required().min(3).max(30),
+  email: Joi.string().trim().email().required(),
+  address: Joi.string().alphanum().trim().min(3).max(30).required(),
+  password: Joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
+}).messages({
+  'any.required': `Please provide {{#label}}`,
+  'string.empty': `Please provide {{#label}}`,
+  'string.min': `{{#label}} should have a minimum length of {#limit}`,
+  'string.max': `{{#label}} should have a maximum length of {#limit}`,
+  'string.pattern.base': `Invalid {{#label}} format`,
+  'string.email': `Please provide a valid email for {{#label}}`,
+  'any.only': `Passwords do not match`,
 });
 
 // Define Mongoose schema
