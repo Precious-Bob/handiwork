@@ -1,55 +1,72 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 const bcrypt = require('bcrypt');
-const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 
-// Define Joi schema
-const userJoiSchema = Joi.object({
-  firstName: Joi.string().trim().alphanum().min(3).max(30).required(),
-  lastName: Joi.string().trim().required().min(3).max(30),
-  email: Joi.string().trim().email().required(),
-  address: Joi.string().alphanum().trim().min(3).max(30).required(),
-  password: Joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
-  confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
-}).messages({
-  'any.required': `Please provide {{#label}}`,
-  'string.empty': `Please provide {{#label}}`,
-  'string.min': `{{#label}} should have a minimum length of {#limit}`,
-  'string.max': `{{#label}} should have a maximum length of {#limit}`,
-  'string.pattern.base': `Invalid {{#label}} format`,
-  'string.email': `Please provide a valid email for {{#label}}`,
-  'any.only': `Passwords do not match`,
-});
-
-// Define Mongoose schema
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
+    required: [true, 'Please provide your first name!'],
+    trim: true,
+    minlength: 3,
   },
+
   lastName: {
     type: String,
+    required: [true, 'Please provide your last name'],
+    trim: true,
+    minlength: 3,
   },
+
   email: {
     type: String,
+    required: [true, 'Please provide your email'],
     unique: true,
     lowercase: true,
+    trim: true,
+    validate: [validator.isEmail, 'Please provide a valid email'],
   },
-  address: String,
-  password: String,
-  confirmPassword: String,
+
+  password: {
+    type: String,
+    required: true,
+    minlength: 8,
+  },
+  address: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  // Timestamps for user creation and updates
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+//define virtual fields for password confirmation:
+userSchema
+  .virtual('confirmPassword')
+  .get(function () {
+    return this._confirmPassword;
+  })
+  .set(function (value) {
+    this._confirmPassword = value;
+  });
+
+userSchema.pre('validate', function (next) {
+  if (this.password !== this._confirmPassword) {
+    this.invalidate('confirmPassword', 'Password does not match!');
+  }
+  next();
 });
 
 userSchema.pre('save', async function (next) {
   try {
-    // Make a copy of the user data
-    const userData = { ...this.toObject() };
-
-    // Delete the _id field
-    delete userData._id;
-
-    // Validate the user data without _id field
-    await userJoiSchema.validateAsync(userData);
-
     // Check if the password is modified and hash it if necessary
     if (this.isModified('password')) {
       const salt = await bcrypt.genSalt(12);
@@ -77,10 +94,9 @@ userSchema.methods.generateAuthToken = function () {
   return token;
 };
 
-//delete password and confirmPassword from res.json
+// Delete password from res.json
 userSchema.methods.toJSON = function () {
   const userObj = this.toObject();
-  delete userObj.confirmPassword;
   delete userObj.password;
   return userObj;
 };

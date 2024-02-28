@@ -35,8 +35,7 @@ exports.login = catchAsync(async (req, res, next) => {
   es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
 });
 
-// test this with email and password field
-// take if password deletes when user is created
+
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
