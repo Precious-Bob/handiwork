@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide your first name!'],
     trim: true,
     minlength: 3,
+    maxLength: 30,
   },
 
   lastName: {
@@ -16,6 +17,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide your last name'],
     trim: true,
     minlength: 3,
+    maxLength: 30,
   },
 
   email: {
