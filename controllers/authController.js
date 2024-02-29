@@ -2,14 +2,10 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const { promisify } = require('util');
+const jwt = require('jsonwebtoken');
 
 exports.signup = catchAsync(async (req, res, next) => {
-  // const { firstName, lastName, email, address, password, confirmPassword } =
-  //   req.body;
-  // if (password !== confirmPassword)
-  //   return res.status(400).json({ message: 'Passwords do not match' });
-
-  const newUser = await User.create(req.body);
+   const newUser = await User.create(req.body);
   const token = newUser.generateAuthToken();
 
   res.status(201).json({
@@ -32,17 +28,17 @@ exports.login = catchAsync(async (req, res, next) => {
   const token = user.generateAuthToken();
   if (!user || !(await user.comparePassword(password)))
     return next(new AppError('Incorrect email or password', 401));
-  es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
+  res.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
 });
-
-
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
   const testToken = req.headers.authorization;
   if (testToken && testToken.startsWith('Bearer'))
     token = testToken.split(' ')[1];
-  if (!token) return next(new AppError(`You're not logged in!`, 401));
+  console.log(req.headers);
+  if (!token)
+    return next(new AppError(`You're not logged in! Login to get access`, 401));
 
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
@@ -50,15 +46,12 @@ exports.protect = catchAsync(async (req, res, next) => {
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
     return next(
-      new AppError(
-        'The user belonging to this token does no longer exist.',
-        401
-      )
+      new AppError('The user with the given token does not exist!', 401)
     );
   }
 
   // 4) Check if user changed password after the token was issued
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
+  if (currentUser.isPasswordChanged(decoded.iat)) {
     return next(
       new AppError('User recently changed password! Please log in again.', 401)
     );

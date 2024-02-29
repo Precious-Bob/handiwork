@@ -12,7 +12,7 @@ router.post('/login', authController.login);
 //   .get(userController.getAllUsers)
 //   .post(userController.createUser);
 
-router.get('/', userController.getAllUsers);
+router.get('/', authController.protect, userController.getAllUsers);
 router.get('/:id', userController.getSingleUser);
 
 module.exports = router;

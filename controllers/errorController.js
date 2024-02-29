@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const AppError = require('../utils/AppError');
 
 function castErrorHandler(err) {
@@ -15,6 +16,11 @@ function validationErrHandler(err) {
   const errors = Object.values(err.errors).map((val) => val.message);
   const errorMsgs = errors.join('. ');
   const msg = `Invalid input data: ${errorMsgs}`;
+  return new AppError(msg, 400);
+}
+
+function JwtErrorHandler(err) {
+  const msg = `${err.message}: We couldn't find your authentication information. Please check if you're logged in and try again`;
   return new AppError(msg, 400);
 }
 
@@ -50,6 +56,7 @@ module.exports = (err, req, res, next) => {
     if (err.name === 'CastError') err = castErrorHandler(err);
     if (err.code === 11000) err = duplicateKeyErrorHandler(err);
     if (err.name === 'ValidationError') err = validationErrHandler(err);
+    if (err instanceof jwt.JsonWebTokenError) err = JwtErrorHandler(err);
 
     prodErrors(err, res);
   }

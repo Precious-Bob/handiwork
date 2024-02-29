@@ -31,12 +31,12 @@ const userSchema = new mongoose.Schema({
 
   password: {
     type: String,
-    required: true,
+    required: [true, 'Please provide a password'],
     minlength: 8,
   },
   address: {
     type: String,
-    required: true,
+    required: [true, 'Please provide an address'],
     trim: true,
   },
   // Timestamps for user creation and updates
@@ -48,6 +48,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  passwordChangedAt: Date,
 });
 
 //define virtual fields for password confirmation:
@@ -68,19 +69,15 @@ userSchema.pre('validate', function (next) {
 });
 
 userSchema.pre('save', async function (next) {
-  try {
-    // Check if the password is modified and hash it if necessary
-    if (this.isModified('password')) {
-      const salt = await bcrypt.genSalt(12);
-      this.password = bcrypt.hash(this.password, salt);
-    }
+  // Only run this function if password was actually modified
+  if (!this.isModified('password')) return next();
 
-    // Proceed to the next middleware
-    next();
-  } catch (error) {
-    // Pass any validation errors to the next middleware
-    next(error);
-  }
+  // Hash the password with cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+
+  // Delete passwordConfirm field
+  this.passwordConfirm = undefined;
+  next();
 });
 
 userSchema.methods.comparePassword = async function (password) {
@@ -101,6 +98,20 @@ userSchema.methods.toJSON = function () {
   const userObj = this.toObject();
   delete userObj.password;
   return userObj;
+};
+
+userSchema.methods.isPasswordChanged = function (jwtTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  // False means NOT changed
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
