@@ -6,8 +6,15 @@ function castErrorHandler(err) {
 }
 
 function duplicateKeyErrorHandler(err) {
-  const name = err.keyValue.email;
-  const msg = `A user with the email '${name}' already exist. Please use another email!`;
+  const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+  const message = `Duplicate field value: ${value}. Please use another value!`;
+  return new AppError(message, 400);
+}
+// Mongoose validation error handler
+function validationErrHandler(err) {
+  const errors = Object.values(err.errors).map((val) => val.message);
+  const errorMsgs = errors.join('. ');
+  const msg = `Invalid input data: ${errorMsgs}`;
   return new AppError(msg, 400);
 }
 
@@ -42,6 +49,7 @@ module.exports = (err, req, res, next) => {
   } else if (process.env.NODE_ENV === 'production') {
     if (err.name === 'CastError') err = castErrorHandler(err);
     if (err.code === 11000) err = duplicateKeyErrorHandler(err);
+    if (err.name === 'ValidationError') err = validationErrHandler(err);
 
     prodErrors(err, res);
   }
