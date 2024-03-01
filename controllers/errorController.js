@@ -34,7 +34,7 @@ function devErrors(error, res) {
 }
 
 function prodErrors(err, res) {
-  if (err.isOperational) {
+  if (err.isOperational) { 
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,

@@ -3,8 +3,9 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 const userController = require('../controllers/userController');
 
-router.post('/signup', authController.signup);
-router.post('/login', authController.login);
+// router.post('/signup', authController.signup);
+router.route('/signup').post(authController.signup);
+router.route('/login').post(authController.login);
 
 // when it's more than one route with the same parameter abi endpoint:
 // router
@@ -12,7 +13,6 @@ router.post('/login', authController.login);
 //   .get(userController.getAllUsers)
 //   .post(userController.createUser);
 
-router.get('/', authController.protect, userController.getAllUsers);
-router.get('/:id', userController.getSingleUser);
-
+router.route('/').get(authController.protect, userController.getAllUsers);
+router.route('/:id').get(userController.getSingleUser);
 module.exports = router;
