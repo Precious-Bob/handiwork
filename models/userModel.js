@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -49,6 +50,9 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
   passwordChangedAt: Date,
+
+  passwordResetToken: string,
+  passwordResetTokenExpires: Date,
 });
 
 //define virtual fields for password confirmation:
@@ -107,11 +111,23 @@ userSchema.methods.isPasswordChanged = function (jwtTimestamp) {
       10
     );
 
-    return JWTTimestamp < changedTimestamp;
+    return jwtTimestamp < changedTimestamp;
   }
 
   // False means NOT changed
   return false;
+};
+
+userSchema.methods.resetPswdToken = function () {
+  const user = this;
+
+  user.resetToken = crypto.randomBytes(32).toString('hex');
+  user.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  user.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);

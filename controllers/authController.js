@@ -3,9 +3,10 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 exports.signup = catchAsync(async (req, res, next) => {
-   const newUser = await User.create(req.body);
+  const newUser = await User.create(req.body);
   const token = newUser.generateAuthToken();
 
   res.status(201).json({
@@ -63,19 +64,31 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.updatePassword = catchAsync(async (req, res, next) => {
-  // 1. get user from collection
+exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email });
-
-  // check if posted current password is correct
-  if (!user || !(await user.comparePassword(password))) {
-    return next(new AppError('Incorrect email or password', 401));
+  if (!user) {
+    return next(
+      new AppError('We could not find the user with the given email', 404)
+    );
   }
-
-  //if so update password
-  const salt = await bcrypt.genSalt(12);
-  const newPassword = bcrypt.hash(this.password, salt);
-  //log user in, send jwt
-  const token = user.generateAuthToken();
-  es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
+  // Generate a random reset token
+  const resetToken = user.resetPswdToken();
+  await user.save({ validateBeforeSave: false });
 });
+
+// exports.updatePassword = catchAsync(async (req, res, next) => {
+//   // 1. get user from collection
+//   const user = await User.findOne({ email });
+
+//   // check if posted current password is correct
+//   if (!user || !(await user.comparePassword(password))) {
+//     return next(new AppError('Incorrect email or password', 401));
+//   }
+
+//   //if so update password
+//   const salt = await bcrypt.genSalt(12);
+//   const newPassword = bcrypt.hash(this.password, salt);
+//   //log user in, send jwt
+//   const token = user.generateAuthToken();
+//   es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
+// });
