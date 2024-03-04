@@ -36,3 +36,17 @@ string.max: Triggered when a string is longer than the specified maximum length.
 string.pattern.base: Triggered when a string does not match the specified pattern.
 string.email: Triggered when a string does not match the email format.
 any.only: Triggered when a field does not match one of the allowed values (in your case, used for password confirmation).
+
+
+
+    Alrotithm and algorithmic thinking
+algorithmic thinking is an approach to problem solving that involves breaking a problem down to a clearly defined input and output along with a distinct set of steps that solves the problem by going from input to output.
+
+features of an algorithm
+- The steps in the algorithm needs to be in a very specific order
+
+-  The steps need to be distinct
+
+- The algorithm should produce a result
+
+-  The algorithm should complete in a finite amount of time
