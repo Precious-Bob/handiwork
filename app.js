@@ -43,9 +43,9 @@ app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
 });
 
-app.use(globalErrorHandler);
 
 //console.log(process.env);
 //reading of .env file happens once, in the server file
 
+app.use(globalErrorHandler); // as end to the file as possible
 module.exports = app;

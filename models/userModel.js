@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
   },
   passwordChangedAt: Date,
 
-  passwordResetToken: string,
+  passwordResetToken: String,
   passwordResetTokenExpires: Date,
 });
 
@@ -119,14 +119,14 @@ userSchema.methods.isPasswordChanged = function (jwtTimestamp) {
 };
 
 userSchema.methods.resetPswdToken = function () {
-  const user = this;
+  const resetToken = crypto.randomBytes(32).toString('hex');
 
-  user.resetToken = crypto.randomBytes(32).toString('hex');
-  user.passwordResetToken = crypto
+  this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  user.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+  this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+  console.log(resetToken, this.passwordResetToken);
   return resetToken;
 };
 
