@@ -65,7 +65,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
-  console.log(req.body);
   if (!user) {
     return next(
       new AppError('We could not find the user with the given email', 404)
@@ -79,27 +78,24 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     'host'
   )}/api/v1/users/resetPassword/${resetToken}`;
   const message = `Please use the link below to reset your password\n\n${resetURL}\n\n This link will expire in 10 minutes`;
-  console.log(resetURL);
   try {
+    if (!message) {
+      return next(new AppError('Missing email message content', 404));
+    }
+
     await sendEmail({
       email: user.email,
       subject: 'Password change request received',
       message,
     });
-    console.log(sendEmail);
 
     res.status(200).json({
       status: 'success',
       message: 'Token sent to email!',
     });
   } catch (err) {
-    user.passwordResetToken = undefined;
-    user.passwordResetTokenExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-
     return next(
-      new AppError('There was an error sending the email. Try again later!'),
-      500
+      new AppError('There was an error sending the email, try again later', 404)
     );
   }
 });
