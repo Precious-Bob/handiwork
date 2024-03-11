@@ -29,11 +29,22 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
-
   password: {
     type: String,
     required: [true, 'Please provide a password'],
     minlength: 8,
+    select: false,
+  },
+  confirmPassword: {
+    type: String,
+    required: [true, 'Please confirm your password'],
+    validate: {
+      // note: This only works on CREATE and SAVE
+      validator: function (el) {
+        return el === this.password;
+      },
+      message: 'Passwords are not the same!',
+    },
   },
   address: {
     type: String,
@@ -55,22 +66,22 @@ const userSchema = new mongoose.Schema({
   passwordResetTokenExpires: Date,
 });
 
-//define virtual fields for password confirmation:
-userSchema
-  .virtual('confirmPassword')
-  .get(function () {
-    return this._confirmPassword;
-  })
-  .set(function (value) {
-    this._confirmPassword = value;
-  });
+//define virtual fields for password confirmation (had to delete cause i need the confirm password field to change)
+// userSchema
+//   .virtual('confirmPassword')
+//   .get(function () {
+//     return this._confirmPassword;
+//   })
+//   .set(function (value) {
+//     this._confirmPassword = value;
+//   });
 
-userSchema.pre('validate', function (next) {
-  if (this.password !== this._confirmPassword) {
-    this.invalidate('confirmPassword', 'Password does not match!');
-  }
-  next();
-});
+// userSchema.pre('validate', function (next) {
+//   if (this.password !== this._confirmPassword) {
+//     this.invalidate('confirmPassword', 'Password does not match!');
+//   }
+//   next();
+// });
 
 userSchema.pre('save', async function (next) {
   // Only run this function if password was actually modified
@@ -84,8 +95,8 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.methods.comparePassword = async function (password) {
-  return bcrypt.compare(password, this.password);
+userSchema.methods.comparePassword = async function (password, passwordDB) {
+  return bcrypt.compare(password, passwordDB);
 };
 
 //  take note of this in adding admin if needed { _id: user._id, admin: user.admin },
@@ -101,6 +112,7 @@ userSchema.methods.generateAuthToken = function () {
 userSchema.methods.toJSON = function () {
   const userObj = this.toObject();
   delete userObj.password;
+  delete userObj.confirmPassword;
   return userObj;
 };
 

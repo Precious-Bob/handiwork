@@ -26,9 +26,10 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Please provide email and password', 400));
 
   const user = await User.findOne({ email });
+  console.log(user);
 
   // If user exists and password matches
-  if (!user || !(await user.comparePassword(password)))
+  if (!user || !(await user.comparePassword(password, user.password)))
     return next(new AppError('Incorrect email or password', 401));
   // Login user
   const token = user.generateAuthToken();
@@ -134,15 +135,23 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user._id);
-  return console.log(user);
+  // you don't check if there's user because the user should be logged in and authorized already (protect route)
+  console.log(user);
+  if (!(await user.comparePassword(req.body.password, user.password))) {
+    return next(
+      new AppError('The current password you provided is wrong!', 401)
+    );
+  }
+  // If password is correct, update passwore
+  user.confirmPassword - req.body.confirmPassword;
+  user.password = req.body.newPassword;
+  await user.save();
 
-  // if (!user || !(await user.comparePassword(password))) {
-  //   return next(new AppError('Incorrect email or password', 401));
-  // }
-  // //if so update password
-  // const salt = await bcrypt.genSalt(12);
-  // const newPassword = bcrypt.hash(this.password, salt);
-  // //log user in, send jwt
-  // const token = user.generateAuthToken();
-  // es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
+  // login user & send Jwt
+  const signToken = user.generateAuthToken();
+  res.status(201).json({
+    message: `Password changed successfully`,
+    token: signToken,
+    data: { user },
+  });
 });
