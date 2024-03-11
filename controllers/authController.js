@@ -4,6 +4,7 @@ const AppError = require('../utils/AppError');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/email');
+const crypto = require('crypto');
 
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create(req.body);
@@ -26,10 +27,12 @@ exports.login = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({ email });
 
-  const token = user.generateAuthToken();
+  // If user exists and password matches
   if (!user || !(await user.comparePassword(password)))
     return next(new AppError('Incorrect email or password', 401));
-  res.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
+  // Login user
+  const token = user.generateAuthToken();
+  res.status(201).json({ message: `welcome, ${user.firstName}`, token });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -100,20 +103,46 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = catchAsync(async (req, res, next) => {});
-// exports.updatePassword = catchAsync(async (req, res, next) => {
-//   // 1. get user from collection
-//   const user = await User.findOne({ email });
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // If the user exists with the given token & token hasn't expired
+  const token = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+  const user = await User.findOne({
+    passwordResetToken: token,
+    passwordResetTokenExpires: { $gt: Date.now() },
+  });
 
-//   // check if posted current password is correct
-//   if (!user || !(await user.comparePassword(password))) {
-//     return next(new AppError('Incorrect email or password', 401));
-//   }
+  if (!user) {
+    return next(new AppError('Token is invalid or expired!', 404));
+  }
 
-//   //if so update password
-//   const salt = await bcrypt.genSalt(12);
-//   const newPassword = bcrypt.hash(this.password, salt);
-//   //log user in, send jwt
-//   const token = user.generateAuthToken();
-//   es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
-// });
+  // reset the user password
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  user.passwordResetToken = undefined;
+  user.passwordResetTokenExpires = undefined;
+  user.passwordChangedAt = Date.now();
+
+  user.save();
+
+  // Login user
+  const signToken = user.generateAuthToken();
+  res.status(201).json({ message: `Success`, token: signToken });
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+  return console.log(user);
+
+  // if (!user || !(await user.comparePassword(password))) {
+  //   return next(new AppError('Incorrect email or password', 401));
+  // }
+  // //if so update password
+  // const salt = await bcrypt.genSalt(12);
+  // const newPassword = bcrypt.hash(this.password, salt);
+  // //log user in, send jwt
+  // const token = user.generateAuthToken();
+  // es.status(201).json({ message: `welcome, ${user.firstName}`, token: token });
+});
