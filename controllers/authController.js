@@ -25,8 +25,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!email || !password)
     return next(new AppError('Please provide email and password', 400));
 
-  const user = await User.findOne({ email });
-  console.log(user);
+  const user = await User.findOne({ email }).select('+password');
 
   // If user exists and password matches
   if (!user || !(await user.comparePassword(password, user.password)))
@@ -134,7 +133,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id).select('+password');
   // you don't check if there's user because the user should be logged in and authorized already (protect route)
   console.log(user);
   if (!(await user.comparePassword(req.body.password, user.password))) {
@@ -142,9 +141,10 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
       new AppError('The current password you provided is wrong!', 401)
     );
   }
-  // If password is correct, update passwore
-  user.confirmPassword - req.body.confirmPassword;
+  // If password is correct, update password
   user.password = req.body.newPassword;
+  user.confirmPassword = req.body.confirmPassword;
+  console.log(req.body);
   await user.save();
 
   // login user & send Jwt

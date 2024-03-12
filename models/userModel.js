@@ -41,11 +41,13 @@ const userSchema = new mongoose.Schema({
     validate: {
       // note: This only works on CREATE and SAVE
       validator: function (el) {
+        console.log(el);
         return el === this.password;
       },
       message: 'Passwords are not the same!',
     },
   },
+
   address: {
     type: String,
     required: [true, 'Please provide an address'],
@@ -66,23 +68,6 @@ const userSchema = new mongoose.Schema({
   passwordResetTokenExpires: Date,
 });
 
-//define virtual fields for password confirmation (had to delete cause i need the confirm password field to change)
-// userSchema
-//   .virtual('confirmPassword')
-//   .get(function () {
-//     return this._confirmPassword;
-//   })
-//   .set(function (value) {
-//     this._confirmPassword = value;
-//   });
-
-// userSchema.pre('validate', function (next) {
-//   if (this.password !== this._confirmPassword) {
-//     this.invalidate('confirmPassword', 'Password does not match!');
-//   }
-//   next();
-// });
-
 userSchema.pre('save', async function (next) {
   // Only run this function if password was actually modified
   if (!this.isModified('password')) return next();
@@ -90,8 +75,8 @@ userSchema.pre('save', async function (next) {
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
 
-  // Delete passwordConfirm field
-  this.passwordConfirm = undefined;
+  // Delete confirm password field
+  this.confirmPassword = undefined;
   next();
 });
 
