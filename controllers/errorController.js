@@ -34,7 +34,7 @@ function devErrors(error, res) {
 }
 
 function prodErrors(err, res) {
-  if (err.isOperational) { 
+  if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
@@ -56,7 +56,7 @@ module.exports = (err, req, res, next) => {
     if (err.name === 'CastError') err = castErrorHandler(err);
     if (err.code === 11000) err = duplicateKeyErrorHandler(err);
     if (err.name === 'ValidationError') err = validationErrHandler(err);
-    if (err instanceof jwt.JsonWebTokenError) err = JwtErrorHandler(err);
+    if (err.name === 'JsonWebTokenError') err = JwtErrorHandler();
 
     prodErrors(err, res);
   }
