@@ -1,18 +1,23 @@
 const express = require('express');
+const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const router = express.Router();
-const userController = require('../controllers/userController');
 
-router.post('/signup', authController.signup);
-router.post('/login', authController.login);
+router.route('/').get(authController.protect, userController.getAllUsers);
+router.route('/:id').get(userController.getSingleUser);
+
+router
+  .route('/updateMyPassword')
+  .patch(authController.protect, userController.updatePassword);
+
+router
+  .route('/updateMe')
+  .patch(authController.protect, userController.updateMe);
 
 // when it's more than one route with the same parameter abi endpoint:
 // router
 //   .route('/')
 //   .get(userController.getAllUsers)
 //   .post(userController.createUser);
-
-router.get('/', authController.protect, userController.getAllUsers);
-router.get('/:id', userController.getSingleUser);
 
 module.exports = router;

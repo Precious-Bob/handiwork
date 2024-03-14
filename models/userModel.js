@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -28,12 +29,25 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
-
   password: {
     type: String,
     required: [true, 'Please provide a password'],
     minlength: 8,
+    select: false,
   },
+  confirmPassword: {
+    type: String,
+    required: [true, 'Please confirm your password'],
+    validate: {
+      // note: This only works on CREATE and SAVE
+      validator: function (el) {
+        console.log(el);
+        return el === this.password;
+      },
+      message: 'Passwords are not the same!',
+    },
+  },
+
   address: {
     type: String,
     required: [true, 'Please provide an address'],
@@ -49,23 +63,9 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
   passwordChangedAt: Date,
-});
 
-//define virtual fields for password confirmation:
-userSchema
-  .virtual('confirmPassword')
-  .get(function () {
-    return this._confirmPassword;
-  })
-  .set(function (value) {
-    this._confirmPassword = value;
-  });
-
-userSchema.pre('validate', function (next) {
-  if (this.password !== this._confirmPassword) {
-    this.invalidate('confirmPassword', 'Password does not match!');
-  }
-  next();
+  passwordResetToken: String,
+  passwordResetTokenExpires: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -75,13 +75,13 @@ userSchema.pre('save', async function (next) {
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
 
-  // Delete passwordConfirm field
-  this.passwordConfirm = undefined;
+  // Delete confirm password field
+  this.confirmPassword = undefined;
   next();
 });
 
-userSchema.methods.comparePassword = async function (password) {
-  return bcrypt.compare(password, this.password);
+userSchema.methods.comparePassword = async function (password, passwordDB) {
+  return bcrypt.compare(password, passwordDB);
 };
 
 //  take note of this in adding admin if needed { _id: user._id, admin: user.admin },
@@ -97,6 +97,7 @@ userSchema.methods.generateAuthToken = function () {
 userSchema.methods.toJSON = function () {
   const userObj = this.toObject();
   delete userObj.password;
+  delete userObj.confirmPassword;
   return userObj;
 };
 
@@ -107,11 +108,22 @@ userSchema.methods.isPasswordChanged = function (jwtTimestamp) {
       10
     );
 
-    return JWTTimestamp < changedTimestamp;
+    return jwtTimestamp < changedTimestamp;
   }
 
   // False means NOT changed
   return false;
+};
+
+userSchema.methods.resetPswdToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);

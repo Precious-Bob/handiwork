@@ -12,5 +12,5 @@
 // Select the database to use.
 use('handiworkdb');
 
-// Insert a few documents into the sales collection.
-db.users.deleteOne({ _id: '65d72eeb19c14636de691bdf' });
+// db.users.deleteOne({ _id: '65d72eeb19c14636de691bdf' });
+db.users.find();
