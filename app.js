@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const connectDB = require('./db/db');
 
 const userRouter = require('./routes/userRoutes');
+const authRouter = require('./routes/authRoutes');
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -38,11 +39,11 @@ connectDB();
 //   })
 // );
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/auth', authRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
 });
-
 
 //console.log(process.env);
 //reading of .env file happens once, in the server file

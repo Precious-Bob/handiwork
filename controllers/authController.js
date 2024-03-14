@@ -118,7 +118,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Token is invalid or expired!', 404));
   }
 
-  // reset the user password
+  // set new password
   user.password = req.body.password;
   user.confirmPassword = req.body.confirmPassword;
   user.passwordResetToken = undefined;
@@ -132,26 +132,5 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   res.status(201).json({ message: `Success`, token: signToken });
 });
 
-exports.updatePassword = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user._id).select('+password');
-  // you don't check if there's user because the user should be logged in and authorized already (protect route)
-  console.log(user);
-  if (!(await user.comparePassword(req.body.password, user.password))) {
-    return next(
-      new AppError('The current password you provided is wrong!', 401)
-    );
-  }
-  // If password is correct, update password
-  user.password = req.body.newPassword;
-  user.confirmPassword = req.body.confirmPassword;
-  console.log(req.body);
-  await user.save();
 
-  // login user & send Jwt
-  const signToken = user.generateAuthToken();
-  res.status(201).json({
-    message: `Password changed successfully`,
-    token: signToken,
-    data: { user },
-  });
-});
+
