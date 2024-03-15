@@ -131,6 +131,3 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   const signToken = user.generateAuthToken();
   res.status(201).json({ message: `Success`, token: signToken });
 });
-
-
-

@@ -13,6 +13,9 @@ router
 router
   .route('/updateMe')
   .patch(authController.protect, userController.updateMe);
+router
+  .route('/deleteMe')
+  .delete(authController.protect, userController.deleteMe);
 
 // when it's more than one route with the same parameter abi endpoint:
 // router
