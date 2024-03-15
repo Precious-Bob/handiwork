@@ -50,3 +50,9 @@ features of an algorithm
 - The algorithm should produce a result
 
 -  The algorithm should complete in a finite amount of time
+
+
+express middleware
+express.urlencoded is middleware used to parse incoming request bodies that are URL-encoded. It's commonly used to parse form data submitted via HTML forms.
+
+express.static is middleware used to serve static files such as HTML, CSS, JavaScript, images, etc., from a directory on the server.

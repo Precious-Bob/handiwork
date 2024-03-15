@@ -127,7 +127,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   user.save();
 
-  // Login user
+  // Login use
   const signToken = user.generateAuthToken();
   res.status(201).json({ message: `Success`, token: signToken });
 });
