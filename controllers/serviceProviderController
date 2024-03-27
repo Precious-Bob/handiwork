@@ -1,0 +1,11 @@
+const ServiceProvider = require('../models/serviceProviderModel');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/AppError');
+
+exports.createServiceProvider = catchAsync(async (req, res) => {
+  const serviceProvider = await ServiceProvider.create(req.body);
+  return res.status(201).json({
+    status: 'Success',
+    data: serviceProvider,
+  });
+});

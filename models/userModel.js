@@ -53,6 +53,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide an address'],
     trim: true,
   },
+  type: { type: String, enum: ['user', 'serviceProvider'] },
   // Timestamps for user creation and updates
   createdAt: {
     type: Date,
@@ -183,7 +184,6 @@ module.exports = User;
 
 // When creating a new resource e.g review :
 // const newReview = await Review.create(req.body);
-
 
 // if you do parent referencing and you need to access the child document from the parent, you can use a virtual populate
 

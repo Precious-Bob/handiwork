@@ -12,6 +12,7 @@ const connectDB = require('./db/db');
 
 const userRouter = require('./routes/userRoutes');
 const authRouter = require('./routes/authRoutes');
+const serviceProviderRouter = require('./routes/serviceProviderRoutes');
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -64,6 +65,7 @@ connectDB();
 // );
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/serviceProvider', serviceProviderRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
@@ -74,5 +76,3 @@ app.all('*', (req, res, next) => {
 
 app.use(globalErrorHandler); // as end to the file as possible
 module.exports = app;
-
-
