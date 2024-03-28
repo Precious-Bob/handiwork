@@ -22,7 +22,7 @@ const app = express();
 app.use(helmet());
 // Rate limiting: preventing the same ip from making too many requests
 const limiter = rateLimit({
-  max: 100,
+  max: 50,
   windowMs: 60 * 60 * 100,
   message: 'Too many requests from this IP',
 });
@@ -46,7 +46,7 @@ app.use(xss());
 //connect to DB
 
 // Prevent parameter polution
-app.use(hpp()); // You can Specify fields for whitelisting in array when needed
+//app.use(hpp()); // You can Specify fields for whitelisting in array when needed
 connectDB();
 
 // Cookie sessions, not needed yet
