@@ -15,6 +15,7 @@ exports.getAllServiceProviders = catchAsync(async (req, res) => {
   if (!serviceProviders) return next(new AppError('No users found', 404));
   return res.status(200).json({
     status: 'Success',
+    results: serviceProviders.length,
     data: serviceProviders,
   });
 });

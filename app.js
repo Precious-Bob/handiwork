@@ -65,7 +65,7 @@ connectDB();
 // );
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/serviceProvider', serviceProviderRouter);
+app.use('/api/v1/serviceProviders', serviceProviderRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
