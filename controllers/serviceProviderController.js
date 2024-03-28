@@ -28,6 +28,6 @@ exports.getServiceProviderById = catchAsync(async (req, res) => {
     return next(new AppError('No service provider found', 404));
   return res.status(200).json({
     status: 'Success',
-    data: serviceProviders,
+    data: serviceProvider,
   });
 });
