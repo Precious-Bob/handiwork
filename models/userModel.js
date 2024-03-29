@@ -29,6 +29,24 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
+  location: {
+    // GeoJSON
+    type: {
+      type: String,
+      default: 'Point',
+      enum: ['Point'],
+    },
+    coordinates: [Number],
+    address: {
+      type: String,
+      required: [true, 'Please provide your address'],
+    },
+  },
+  type: {
+    type: String,
+    enum: ['user', 'serviceProvider'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
@@ -48,12 +66,6 @@ const userSchema = new mongoose.Schema({
     },
   },
 
-  address: {
-    type: String,
-    required: [true, 'Please provide an address'],
-    trim: true,
-  },
-  type: { type: String, enum: ['user', 'serviceProvider'] },
   // Timestamps for user creation and updates
   createdAt: {
     type: Date,
@@ -146,16 +158,6 @@ userSchema.methods.resetPswdToken = function () {
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
-
-//  location: {
-//     type: {
-//       type: String,
-//       enum: ['Point'],
-//       default: 'Point'
-//     },
-//     coordinates: [Number] // log, lat
-//  address: String
-//   },
 
 // In case of embedding,this  middleware is to return documents based on the id the 'guides' array submitted
 // tourSchema.pre('save', async function(next){

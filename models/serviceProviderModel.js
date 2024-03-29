@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
-const User = require('./userModel');
 
 const serviceProviderSchema = new mongoose.Schema({
-  ...User.schema.obj, // Inherits fields from User model
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: [true, 'Service provider must be associated with a user'],
+  },
   services: [
     {
       name: String,
@@ -17,10 +20,6 @@ const serviceProviderSchema = new mongoose.Schema({
       },
     },
   ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
 });
 
 const ServiceProvider = mongoose.model(

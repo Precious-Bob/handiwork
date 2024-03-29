@@ -43,11 +43,12 @@ app.use(mongoSanitize());
 
 // Data sanitization against xss
 app.use(xss());
+
 //connect to DB
+connectDB();
 
 // Prevent parameter polution
 //app.use(hpp()); // You can Specify fields for whitelisting in array when needed
-connectDB();
 
 // Cookie sessions, not needed yet
 // app.use(cookieParser());
