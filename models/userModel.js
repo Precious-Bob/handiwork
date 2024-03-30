@@ -42,11 +42,6 @@ const userSchema = new mongoose.Schema({
       required: [true, 'Please provide your address'],
     },
   },
-  type: {
-    type: String,
-    enum: ['user', 'serviceProvider'],
-    default: 'user',
-  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],

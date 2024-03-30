@@ -11,7 +11,7 @@ const serviceProviderSchema = new mongoose.Schema({
       name: String,
       description: String,
       category: String,
-      rates: {
+      Price: {
         type: {
           type: String,
           default: 'fixed',
@@ -21,6 +21,8 @@ const serviceProviderSchema = new mongoose.Schema({
     },
   ],
 });
+
+serviceProviderSchema.index({ user: 1 }, { unique: true });
 
 const ServiceProvider = mongoose.model(
   'ServiceProvider',

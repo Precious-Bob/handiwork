@@ -4,6 +4,8 @@ const AppError = require('../utils/AppError');
 
 exports.createServiceProvider = catchAsync(async (req, res) => {
   const serviceProvider = await ServiceProvider.create(req.body);
+  serviceProvider.role = req.body.role;
+  console.log(res.json);
   return res.status(201).json({
     status: 'Success',
     data: serviceProvider,
@@ -23,7 +25,7 @@ exports.getAllServiceProviders = catchAsync(async (req, res) => {
 exports.getServiceProviderById = catchAsync(async (req, res) => {
   const serviceProvider = await ServiceProvider.findById(
     req.params.serviceProviderId
-  );
+  ).populate('user');
   if (!serviceProvider)
     return next(new AppError('No service provider found', 404));
   return res.status(200).json({
