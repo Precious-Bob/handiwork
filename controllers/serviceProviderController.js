@@ -12,9 +12,10 @@ exports.createServiceProvider = catchAsync(async (req, res) => {
   });
 });
 
-exports.getAllServiceProviders = catchAsync(async (req, res) => {
+exports.getAllServiceProviders = catchAsync(async (req, res, next) => {
   const serviceProviders = await ServiceProvider.find();
-  if (!serviceProviders) return next(new AppError('No users found', 404));
+  if (!serviceProviders)
+    return next(new AppError('No service provider found!', 404));
   return res.status(200).json({
     status: 'Success',
     results: serviceProviders.length,
@@ -22,12 +23,12 @@ exports.getAllServiceProviders = catchAsync(async (req, res) => {
   });
 });
 
-exports.getServiceProviderById = catchAsync(async (req, res) => {
+exports.getServiceProviderById = catchAsync(async (req, res, next) => {
   const serviceProvider = await ServiceProvider.findById(
     req.params.serviceProviderId
-  ).populate('user');
+  );
   if (!serviceProvider)
-    return next(new AppError('No service provider found', 404));
+    return next(new AppError('No service provider found with that id!', 404));
   return res.status(200).json({
     status: 'Success',
     data: serviceProvider,
