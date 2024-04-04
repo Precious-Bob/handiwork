@@ -22,7 +22,7 @@ const app = express();
 app.use(helmet());
 // Rate limiting: preventing the same ip from making too many requests
 const limiter = rateLimit({
-  max: 100,
+  max: 50,
   windowMs: 60 * 60 * 100,
   message: 'Too many requests from this IP',
 });
@@ -43,11 +43,12 @@ app.use(mongoSanitize());
 
 // Data sanitization against xss
 app.use(xss());
+
 //connect to DB
+connectDB();
 
 // Prevent parameter polution
-app.use(hpp()); // You can Specify fields for whitelisting in array when needed
-connectDB();
+//app.use(hpp()); // You can Specify fields for whitelisting in array when needed
 
 // Cookie sessions, not needed yet
 // app.use(cookieParser());
@@ -65,7 +66,7 @@ connectDB();
 // );
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/serviceProvider', serviceProviderRouter);
+app.use('/api/v1/serviceProviders', serviceProviderRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
@@ -74,5 +75,5 @@ app.all('*', (req, res, next) => {
 //console.log(process.env);
 //reading of .env file happens once, in the server file
 
-app.use(globalErrorHandler); // as end to the file as possible
+app.use(globalErrorHandler); // keep at end to the file as possible
 module.exports = app;
