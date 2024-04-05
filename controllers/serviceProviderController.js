@@ -24,7 +24,7 @@ exports.getAllServiceProviders = catchAsync(async (req, res, next) => {
 exports.getServiceProviderById = catchAsync(async (req, res, next) => {
   const serviceProvider = await ServiceProvider.findById(
     req.params.serviceProviderId
-  );
+  ).populate('reviews');
   if (!serviceProvider)
     return next(new AppError('No service provider found with that id!', 404));
   return res.status(200).json({

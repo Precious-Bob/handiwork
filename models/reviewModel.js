@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const User = require('./userModel');
+const ServiceProvider = require('../models/serviceProviderModel');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/AppError');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -37,6 +41,20 @@ reviewSchema.pre(/^find/, function (next) {
     path: 'user',
     select: 'firstName lastName',
   });
+  next();
+});
+
+reviewSchema.pre('save', async function (next) {
+  const userExists = await User.exists({ _id: this.user });
+  const serviceProviderExists = await ServiceProvider.exists({
+    _id: this.serviceProvider,
+  });
+
+  if (!userExists || !serviceProviderExists) {
+    return next(
+      new AppError('Please provide a valid user or serviceProvider id', 400)
+    );
+  }
   next();
 });
 
