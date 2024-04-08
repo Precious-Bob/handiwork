@@ -9,8 +9,8 @@ router
   .get(reviewController.getAllReviews);
 
 router
-  .route('/:reviewId')
+  .route('/:id')
   .get(reviewController.getReviewById)
-  .post(reviewController.deleteReview);
+  .delete(reviewController.deleteReview);
 
 module.exports = router;
