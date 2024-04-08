@@ -29,15 +29,22 @@ const serviceProviderSchema = new mongoose.Schema(
   }
 );
 
+serviceProviderSchema.methods.toJSON = function () {
+  const serviceProviderObj = this.toObject();
+  delete serviceProviderObj.password;
+  delete serviceProviderObj.confirmPassword;
+  return serviceProviderObj;
+};
+
 // Virtual populate
 serviceProviderSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'serviceProvider',
   localField: '_id',
 });
-
 const ServiceProvider = mongoose.model(
   'ServiceProvider',
   serviceProviderSchema
 );
+
 module.exports = ServiceProvider;

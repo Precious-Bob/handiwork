@@ -1,7 +1,10 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const serviceProviderController = require('../controllers/serviceProviderController');
+const reviewRouter = require('../routes/reviewRoutes');
 const router = express.Router();
+
+router.use('/:serviceProviderId/reviews', reviewRouter);
 
 router
   .route('/')
