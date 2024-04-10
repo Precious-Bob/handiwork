@@ -3,18 +3,16 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const factory = require('./handlerfactory');
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-  if (!users) return next(new AppError('No users found', 404));
-
-  return res.status(200).json({
-    status: 'Success',
-    results: users.length,
-    data: users,
-  });
-});
-
+exports.getAllUsers = factory.getAll(User);
 exports.getUser = factory.getOne(User);
+
+exports.createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not defined! Please use /signup instead'
+  });
+};
+
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user._id).select('+password');

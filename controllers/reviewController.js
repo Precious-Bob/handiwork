@@ -13,16 +13,8 @@ exports.setServiceProviderId = (req, res, next) => {
 
 exports.createReview = factory.createOne(Review);
 
-exports.getAllReviews = catchAsync(async (req, res, next) => {
- 
-  const reviews = await Review.find(filter);
-  if (!reviews) return next(new AppError('No review found!', 404));
-  return res.status(200).json({
-    status: 'Success',
-    results: reviews.length,
-    data: reviews,
-  });
-});
+
+exports.getAllReviews = factory.getAll(Review)
 
 exports.getReview = factory.getOne(Review);
 
