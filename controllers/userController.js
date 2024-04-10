@@ -9,15 +9,18 @@ exports.getUser = factory.getOne(User);
 exports.createUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not defined! Please use /signup instead'
+    message: 'This route is not defined! Please use /signup instead',
   });
 };
 
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user._id).select('+password');
   // you don't check if there's user because the user should be logged in and authorized already (protect route)
-  console.log(user);
   if (!(await user.comparePassword(req.body.password, user.password))) {
     return next(
       new AppError('The current password you provided is wrong!', 401)

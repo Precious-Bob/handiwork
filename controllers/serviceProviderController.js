@@ -7,6 +7,11 @@ exports.createServiceProvider = factory.createOne(ServiceProvider);
 
 exports.getAllServiceProviders = factory.getAll(ServiceProvider);
 
+// exports.getMe = (req, res, next) => {
+//   console.log(req.serviceProvider.id, req.params.id);
+//   req.params.id = req.serviceProvider.id;
+//   next();
+// };
 exports.getServiceProvider = factory.getOne(ServiceProvider, {
   path: 'reviews',
 });
