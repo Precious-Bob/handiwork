@@ -1,18 +1,23 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const serviceProviderController = require('../controllers/serviceProviderController');
-const reviewRouter = require('../routes/reviewRoutes');
 const router = express.Router();
-
-router.use('/:serviceProviderId/reviews', reviewRouter);
 
 router
   .route('/')
-  .post(serviceProviderController.createServiceProvider)
+  .post(authController.protect, serviceProviderController.createServiceProvider)
   .get(serviceProviderController.getAllServiceProviders);
 
 router
-  .route('/:serviceProviderId')
-  .get(serviceProviderController.getServiceProviderById);
+  .route('/:id')
+  .get(authController.protect, serviceProviderController.getServiceProvider)
+  .patch(
+    authController.protect,
+    serviceProviderController.updateServiceProvider
+  )
+  .delete(
+    authController.protect,
+    serviceProviderController.deleteServiceProvider
+  );
 
 module.exports = router;

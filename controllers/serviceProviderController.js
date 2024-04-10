@@ -1,6 +1,7 @@
 const ServiceProvider = require('../models/serviceProviderModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
+const factory = require('./handlerfactory');
 
 exports.createServiceProvider = catchAsync(async (req, res) => {
   const serviceProvider = await ServiceProvider.create(req.body);
@@ -21,14 +22,9 @@ exports.getAllServiceProviders = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getServiceProviderById = catchAsync(async (req, res, next) => {
-  const serviceProvider = await ServiceProvider.findById(
-    req.params.serviceProviderId
-  ).populate('reviews');
-  if (!serviceProvider)
-    return next(new AppError('No service provider found with that id!', 404));
-  return res.status(200).json({
-    status: 'Success',
-    data: serviceProvider,
-  });
+exports.getServiceProvider = factory.getOne(ServiceProvider, {
+  path: 'reviews',
 });
+
+exports.deleteServiceProvider = factory.deleteOne(ServiceProvider);
+exports.updateServiceProvider = factory.updateOne(ServiceProvider);
