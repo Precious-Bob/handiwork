@@ -62,7 +62,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
-  res.locals.user = currentUser;
+  // res.locals.user = currentUser; Sets the `currentUser` object as `user` in response locals, available for view templates.
   next();
 });
 
