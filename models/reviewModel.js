@@ -36,6 +36,56 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+reviewSchema.index({ serviceProvider: 1, user: 1 }, { unique: true }); // Ensure no duplication by users
+
+reviewSchema.statics.calcAverageRatings = async function (serviceProviderId) {
+  const stats = await this.aggregate([
+    {
+      $match: { serviceProvider: serviceProviderId },
+    },
+    {
+      $group: {
+        _id: '$serviceProvider',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+  // console.log(stats);
+
+  if (stats.length > 0) {
+    await ServiceProvider.findByIdAndUpdate(serviceProviderId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating,
+    });
+  } else {
+    await ServiceProvider.findByIdAndUpdate(serviceProviderId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
+};
+
+reviewSchema.post('save', function () {
+  // this points to current review
+  this.constructor.calcAverageRatings(this.serviceProvider);
+});
+
+// findByIdAndUpdate
+// findByIdAndDelete
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  this.review = await this.findOne();
+  // console.log(this.r);
+  next();
+});
+
+reviewSchema.post(/^findOneAnd/, async function () {
+  // await this.findOne(); does NOT work here, query has already executed
+  await this.review.constructor.calcAverageRatings(this.review.tour);
+});
+
+//--
+
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'user',

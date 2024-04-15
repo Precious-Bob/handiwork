@@ -29,18 +29,9 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
-  location: {
-    // GeoJSON
-    type: {
-      type: String,
-      default: 'Point',
-      enum: ['Point'],
-    },
-    coordinates: [Number], // long, lat
-    address: {
-      type: String,
-      required: [true, 'Please provide your address'],
-    },
+  address: {
+    type: String,
+    required: [true, 'Please provide your address'],
   },
   password: {
     type: String,
