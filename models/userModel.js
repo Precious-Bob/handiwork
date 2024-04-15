@@ -51,6 +51,7 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not the same!',
     },
   },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
 
   // Timestamps for user creation and updates
   createdAt: {
@@ -100,12 +101,16 @@ userSchema.methods.comparePassword = async function (password, passwordDB) {
   return bcrypt.compare(password, passwordDB);
 };
 
-//  take note of this in adding admin if needed { _id: user._id, admin: user.admin },
+//  take note of this in adding admin if needed ,
 userSchema.methods.generateAuthToken = function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
+  const token = jwt.sign(
+    { _id: user._id, admin: user.admin },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    }
+  );
   return token;
 };
 
