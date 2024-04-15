@@ -102,7 +102,7 @@ reviewSchema.pre('save', async function (next) {
 
   if (!userExists || !serviceProviderExists) {
     return next(
-      new AppError('Please provide a valid user or serviceProvider id', 400)
+      new AppError('Please provide a valid user and serviceProvider id', 400)
     );
   }
   next();

@@ -11,7 +11,7 @@
 
 // Select the database to use.
 use('handiworkdb');
-// db.serviceproviders.deleteMany({})
+db.reviews.deleteMany({});
 // db.users.deleteOne({ _id: '65d72eeb19c14636de691bdf' });
 
 // db.users.find();

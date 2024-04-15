@@ -1,6 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const serviceProviderController = require('../controllers/serviceProviderController');
+const reviewRouter = require('./reviewRoutes');
 const router = express.Router();
 
 // Service provider doesn't have its own jwt
@@ -9,13 +10,17 @@ const router = express.Router();
 //   serviceProviderController.getMe,
 //   serviceProviderController.getServiceProvider
 // );
-
-router.use(authController.protect);
+router.use('/:serviceProviderId/reviews', reviewRouter);
 
 router
   .route('/')
   .post(serviceProviderController.createServiceProvider)
-  .get(serviceProviderController.getAllServiceProviders);
+  .get(
+    authController.protect,
+    serviceProviderController.getAllServiceProviders
+  );
+
+router.use(authController.protect);
 
 router
   .route('/:id')
