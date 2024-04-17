@@ -45,7 +45,6 @@ const userSchema = new mongoose.Schema({
     validate: {
       // note: This only works on CREATE and SAVE
       validator: function (el) {
-        console.log(el);
         return el === this.password;
       },
       message: 'Passwords are not the same!',
@@ -149,37 +148,3 @@ userSchema.methods.resetPswdToken = function () {
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
-
-// In case of embedding,this  middleware is to return documents based on the id the 'guides' array submitted
-// tourSchema.pre('save', async function(next){
-//   const guidesPromises = this.guides(async id => await)
-// })
-
-// when using a refrence (with object id), only the ids of the object passed is returned. to return the documents, do:
-// const tour = await Tour.findById(req.params.id).populate({
-//   path: 'guides',
-//   select: '-__v -passwordChangedAt'
-// })
-
-// but instead of doing this on more than one routes on the controller, we can do a query middleware:
-//tourSchema.pre(/^find/, function(next) {
-// tourSchema.pre(/^find/, function(next) {
-//   this.populate({
-//     path: 'guides',
-//     select: '-__v -passwordChangedAt'
-//   }).populate({
-//     path: 'user',
-//     select: 'name',
-// }) if it's more than one query you want to populate
-
-//   next();
-// });
-
-// When creating a new resource e.g review :
-// const newReview = await Review.create(req.body);
-
-// if you do parent referencing and you need to access the child document from the parent, you can use a virtual populate
-
-// Data that is a
-// Starting fully tomorrow!!!
-// Starting fully tomorrow!!!

@@ -51,7 +51,6 @@ reviewSchema.statics.calcAverageRatings = async function (serviceProviderId) {
       },
     },
   ]);
-  // console.log(stats);
 
   if (stats.length > 0) {
     await ServiceProvider.findByIdAndUpdate(serviceProviderId, {
@@ -81,7 +80,7 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
 
 reviewSchema.post(/^findOneAnd/, async function () {
   // await this.findOne(); does NOT work here, query has already executed
-  await this.review.constructor.calcAverageRatings(this.review.tour);
+  await this.review.constructor.calcAverageRatings(this.review.serviceProvider);
 });
 
 //--
@@ -93,6 +92,7 @@ reviewSchema.pre(/^find/, function (next) {
   });
   next();
 });
+
 
 reviewSchema.pre('save', async function (next) {
   const userExists = await User.exists({ _id: this.user });
