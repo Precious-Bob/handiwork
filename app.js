@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const compression = require('compression');
 // const session = require('express-session');
 // const cookieParser = require('cookie-parser');
 // const MongoStore = require('connect-mongo');
@@ -48,6 +49,7 @@ app.use(xss());
 //connect to DB
 connectDB();
 
+app.use(compression());
 // Prevent parameter polution
 //app.use(hpp()); // You can Specify fields for whitelisting in array when needed
 
