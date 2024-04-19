@@ -73,7 +73,7 @@ reviewSchema.post('save', function () {
 // findByIdAndUpdate
 // findByIdAndDelete
 reviewSchema.pre(/^findOneAnd/, async function (next) {
-  this.review = await this.findOne();
+  this.review = await this.clone().findOne();
   // console.log(this.r);
   next();
 });
@@ -92,7 +92,6 @@ reviewSchema.pre(/^find/, function (next) {
   });
   next();
 });
-
 
 reviewSchema.pre('save', async function (next) {
   const userExists = await User.exists({ _id: this.user });
