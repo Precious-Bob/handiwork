@@ -24,7 +24,7 @@ const app = express();
 app.use(helmet());
 // Rate limiting: preventing the same ip from making too many requests
 const limiter = rateLimit({
-  max: 50,
+  max: 100,
   windowMs: 60 * 60 * 100,
   message: 'Too many requests from this IP',
 });
