@@ -20,6 +20,14 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
+
+// Swagger setup
+const swaggerUI = require('swagger-ui-express');
+const yaml = require('yamljs');
+
+const swaggerDef = yaml.load('./documentation.yaml');
+app.use('/api/vi/docs', swaggerUI.serve, swaggerUI.setup(swaggerDef));
+
 // Middleware
 app.use(helmet());
 // Rate limiting: preventing the same ip from making too many requests
