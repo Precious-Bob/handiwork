@@ -10,6 +10,26 @@ servers:
 #     description: Heroku remote server
 components:
   responses:
+    UserNotFound:
+      description: User not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: 'User with ID {userId} not found'
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: 'Authentication required to access this endpoint'
     ForbiddenError:
       description: Access denied
       content:
@@ -21,6 +41,11 @@ components:
                 type: string
                 example: 'Only admin users can access this endpoint'
   securitySchemes:
+    userAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: User authentication
     adminAuth:
       type: http
       scheme: bearer
@@ -119,10 +144,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
+                    example: User created successfully!
                   _id:
                     type: string
+                    description: The newly created user's ID
   /auth/login:
     post:
       summary: Login a User
@@ -138,7 +165,6 @@ paths:
                   type: string
                 password:
                   type: string
-
       responses:
         200:
           description: User logged in succesfully
@@ -147,10 +173,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  token:
                     type: string
-                  data:
-                    type: string
+                    description: Authentication token
+                  user:
+                    type: object
+                    description: User data
         400:
           description: Bad request
           content:
@@ -184,11 +212,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  message:
                     type: string
-                  data:
+                    example: Password reset link sent to your email!
+                  token:
                     type: string
-        404:
+        400:
           description: Bad request
           content:
             application/json:
@@ -252,3 +281,134 @@ paths:
                   $ref: '#/components/schemas/User'
         403:
           $ref: '#/components/responses/ForbiddenError'
+    post:
+      summary: Create a new user
+      description: Create a new user (only accessible by admins)
+      security:
+        - adminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        201:
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /users/{userId}:
+    get:
+      summary: Get a specific user
+      description: Retrieve a single user by ID
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: The ID of the user to retrieve
+          schema:
+            type: integer
+      security:
+        - adminAuth: []
+      responses:
+        200:
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/UserNotFound'
+
+    delete:
+      summary: Delete a user
+      description: Delete a user by ID
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: The ID of the user to delete
+          schema:
+            type: integer
+      security:
+        - userAuth: []
+      responses:
+        204:
+          description: User deleted successfully
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/UserNotFound'
+  /users/me:
+    get:
+      summary: Get the current user
+      description: Retrieve the authenticated user's data
+      security:
+        - userAuth: []
+      responses:
+        200:
+          description: User data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /users/updateMe:
+    patch:
+      summary: Update the current user
+      description: Update the authenticated user's data
+      security:
+        - userAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/UserNotFound'
+  /users/updateMyPassword:
+    patch:
+      summary: Update the current user's password
+      description: Update the authenticated user's password
+      security:
+        - userAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+                confirmPassword:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: Password updated successfully
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/UserNotFound'

@@ -4,8 +4,6 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 // Protect all routes after this middleware
-router.route('/').post(userController.createUser);
-
 router.use(authController.protect);
 
 router.get('/me', userController.getMe, userController.getUser);
@@ -17,7 +15,10 @@ router.route('/deleteMe').delete(userController.deleteMe);
 
 router.use(authController.authorize('admin'));
 
-router.route('/').get(userController.getAllUsers);
+router
+  .route('/')
+  .get(userController.getAllUsers)
+  .post(userController.createUser);
 
 router
   .route('/:id')
