@@ -4,13 +4,13 @@ info:
   description: The handiwork app provides various API resources to connect users with service providers for various tasks like carpentry, plumbing, and more.
   version: '1.0'
 servers:
-  - url: http://localhost:3000/
+  - url: http://localhost:3000/api/v1/
     description: Localhost development server
 #   - url: https://smsj-men-restapi.herokuapp.com/api/
 #     description: Heroku remote server
 components:
   responses:
-    UserNotFound:
+    DocumentNotFound:
       description: User not found
       content:
         application/json:
@@ -19,7 +19,7 @@ components:
             properties:
               error:
                 type: string
-                example: 'User with ID {userId} not found'
+                example: 'Document with ID {id} not found'
     UnauthorizedError:
       description: Unauthorized
       content:
@@ -194,6 +194,8 @@ paths:
     post:
       summary: Request a password reset
       description: This endpoint allows users to request a password reset by sending a reset link to the provided email address.
+      security:
+        - userAuth: []
       requestBody:
         required: true
         content:
@@ -231,6 +233,8 @@ paths:
     patch:
       summary: Reset user password
       description: This endpoint allows users to reset their password
+      security:
+        - userAuth: []
       requestBody:
         required: true
         content:
@@ -301,13 +305,13 @@ paths:
                 $ref: '#/components/schemas/User'
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /users/{userId}:
+  /users/{id}:
     get:
       summary: Get a specific user
       description: Retrieve a single user by ID
       parameters:
         - in: path
-          name: userId
+          name: id
           required: true
           description: The ID of the user to retrieve
           schema:
@@ -324,14 +328,14 @@ paths:
         403:
           $ref: '#/components/responses/ForbiddenError'
         404:
-          $ref: '#/components/responses/UserNotFound'
+          $ref: '#/components/responses/DocumentNotFound'
 
     delete:
       summary: Delete a user
       description: Delete a user by ID
       parameters:
         - in: path
-          name: userId
+          name: id
           required: true
           description: The ID of the user to delete
           schema:
@@ -344,7 +348,7 @@ paths:
         403:
           $ref: '#/components/responses/ForbiddenError'
         404:
-          $ref: '#/components/responses/UserNotFound'
+          $ref: '#/components/responses/DocumentNotFound'
   /users/me:
     get:
       summary: Get the current user
@@ -382,7 +386,7 @@ paths:
         401:
           $ref: '#/components/responses/UnauthorizedError'
         404:
-          $ref: '#/components/responses/UserNotFound'
+          $ref: '#/components/responses/DocumentNotFound'
   /users/updateMyPassword:
     patch:
       summary: Update the current user's password
@@ -411,4 +415,373 @@ paths:
         401:
           $ref: '#/components/responses/UnauthorizedError'
         404:
-          $ref: '#/components/responses/UserNotFound'
+          $ref: '#/components/responses/DocumentNotFound'
+  /service-providers:
+    post:
+      summary: Create a new service provider
+      description: Create a new service provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceProvider'
+      responses:
+        201:
+          description: Service provider created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceProvider'
+        400:
+          description: Bad request
+    get:
+      summary: Get all service providers
+      description: Retrieve a list of all service providers
+      responses:
+        200:
+          description: List of service providers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceProvider'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+  /service-providers/{id}:
+    get:
+      summary: Get a service provider by ID
+      description: Retrieve a single service provider by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the service provider
+          schema:
+            type: string
+      responses:
+        200:
+          description: Service provider found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceProvider'
+        404:
+          $ref: '#/components/responses/DocumentNotFound'
+        500:
+          description: Internal Server Error
+    patch:
+      summary: Update a service provider
+      description: Update an existing service provider
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the service provider
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceProvider'
+      responses:
+        200:
+          description: Service provider updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceProvider'
+        404:
+          $ref: '#/components/responses/DocumentNotFound'
+        500:
+          description: Internal Server Error
+    delete:
+      summary: Delete a service provider
+      description: Delete a single service provider by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the service provider
+          schema:
+            type: string
+      responses:
+        204:
+          description: Service provider deleted successfully
+        404:
+          $ref: '#/components/responses/DocumentNotFound'
+        500:
+          description: Internal Server Error
+  /serviceProviders/{serviceProviderId}/reviews:
+    post:
+      summary: Create a review for a service provider
+      description: Create a new review for a service provider
+      security:
+        - userAuth: []
+      parameters:
+        - in: path
+          name: serviceProviderId
+          required: true
+          description: The ID of the service provider
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                review:
+                  type: string
+                  description: The review text
+                rating:
+                  type: integer
+                  description: The rating (1-5)
+      responses:
+        201:
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The ID of the review
+                  review:
+                    type: string
+                    description: The review text
+                  rating:
+                    type: integer
+                    description: The rating (1-5)
+        400:
+          description: Bad request
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Service provider not found
+        500:
+          description: Internal Server Error
+    get:
+      summary: Get all reviews for a service provider
+      description: Retrieve a list of all reviews for a service provider
+      security:
+        - adminAuth: []
+      parameters:
+        - in: path
+          name: serviceProviderId
+          required: true
+          description: The ID of the service provider
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of the review
+                    review:
+                      type: string
+                      description: The review text
+                    rating:
+                      type: integer
+                      description: The rating (1-5)
+        404:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Internal Server Error
+
+  /reviews:
+    post:
+      summary: Create a new review
+      description: Create a new review for a service provider
+      security:
+        - userAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serviceProviderId:
+                  type: string
+                  description: The ID of the service provider being reviewed
+                rating:
+                  type: integer
+                  description: The rating given (1-5)
+                comment:
+                  type: string
+                  description: The review comment
+      responses:
+        201:
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The ID of the review
+                  serviceProviderId:
+                    type: string
+                    description: The ID of the service provider being reviewed
+                  rating:
+                    type: integer
+                    description: The rating given (1-5)
+                  comment:
+                    type: string
+                    description: The review comment
+        400:
+          description: Bad request
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+    get:
+      summary: Get all reviews
+      description: Retrieve a list of all reviews
+      security:
+        - userAuth: []
+      responses:
+        200:
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of the review
+                    serviceProviderId:
+                      type: string
+                      description: The ID of the service provider being reviewed
+                    rating:
+                      type: integer
+                      description: The rating given (1-5)
+                    comment:
+                      type: string
+                      description: The review comment
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Internal Server Error
+  /reviews/{id}:
+    get:
+      summary: Get a review by ID
+      description: Retrieve a single review by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the review
+          schema:
+            type: string
+      responses:
+        200:
+          description: Review found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The ID of the review
+                  serviceProviderId:
+                    type: string
+                    description: The ID of the service provider being reviewed
+                  rating:
+                    type: integer
+                    description: The rating given (1-5)
+                  comment:
+                    type: string
+                    description: The review comment
+        404:
+          $ref: '#/components/responses/DocumentNotFound'
+        500:
+          description: Internal Server Error
+
+    patch:
+      summary: Update a review
+      description: Update an existing review
+      security:
+        - userAuth: []
+        - adminAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the review
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  description: The new rating (1-5)
+                comment:
+                  type: string
+                  description: The new review comment
+      responses:
+        200:
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The ID of the review
+                  serviceProviderId:
+                    type: string
+                    description: The ID of the service provider being reviewed
+                  rating:
+                    type: integer
+                    description: The new rating (1-5)
+                  comment:
+                    type: string
+                    description: The new review comment
+        404:
+          $ref: '#/components/responses/DocumentNotFound'
+        500:
+          description: Internal Server Error
+    delete:
+      summary: Delete a review
+      description: Delete an existing review
+      security:
+        - userAuth: []
+        - adminAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the review
+          schema:
+            type: string
+      responses:
+        204:
+          description: Review deleted successfully
+        404:
+          $ref: '#/components/responses/DocumentNotFound'
+        500:
+          description: Internal Server Error

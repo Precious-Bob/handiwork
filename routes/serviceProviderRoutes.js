@@ -14,7 +14,7 @@ router.use('/:serviceProviderId/reviews', reviewRouter);
 
 router
   .route('/')
-  .post(authController.protect, serviceProviderController.createServiceProvider)
+  .post(serviceProviderController.createServiceProvider)
   .get(
     authController.protect,
     authController.authorize('admin'),
