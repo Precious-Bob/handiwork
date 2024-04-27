@@ -20,7 +20,6 @@ const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
-
 // Swagger setup
 const swaggerUI = require('swagger-ui-express');
 const yaml = require('yamljs');
@@ -79,6 +78,10 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/serviceProviders', serviceProviderRouter);
 app.use('/api/v1/reviews', reviewRouter);
+
+app.get('/', (req, res) => {
+  res.redirect('/api/v1/docs');
+});
 
 app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
