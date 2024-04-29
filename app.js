@@ -20,11 +20,6 @@ const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
-
-// Swagger setup
-const swaggerUI = require('swagger-ui-express');
-const yaml = require('yamljs');
-
 // Middleware
 app.use(helmet());
 // Rate limiting: preventing the same ip from making too many requests
@@ -33,6 +28,9 @@ app.use(helmet());
 app.use(cors()); // Access-Control-Allow-Origin *
 app.options('*', cors()); // To handle preflight request
 
+// Swagger setup
+const swaggerUI = require('swagger-ui-express');
+const yaml = require('yamljs');
 const swaggerDef = yaml.load('./documentation.yaml');
 app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDef));
 

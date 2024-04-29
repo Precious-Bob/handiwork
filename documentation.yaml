@@ -4,10 +4,10 @@ info:
   description: The handiwork app provides various API resources to connect users with service providers for various tasks like carpentry, plumbing, and more.
   version: '1.0'
 servers:
-  - url: http://localhost:3000/api/v1/
-    description: Localhost development server
   - url: http://handiwork-api.onrender.com/
     description: Render remote server
+  - url: http://localhost:3000/api/v1/
+    description: Localhost development server
 components:
   responses:
     DocumentNotFound:
