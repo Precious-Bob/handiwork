@@ -6,8 +6,8 @@ info:
 servers:
   - url: http://localhost:3000/api/v1/
     description: Localhost development server
-#   - url: https://smsj-men-restapi.herokuapp.com/api/
-#     description: Heroku remote server
+  - url: http://handiwork-api.onrender.com/
+    description: Render remote server
 components:
   responses:
     DocumentNotFound:
