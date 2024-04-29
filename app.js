@@ -34,7 +34,7 @@ app.use(helmet());
 
 // Implement cors
 app.use(cors()); // Access-Control-Allow-Origin *
-
+app.options('*', cors()) // To handle preflight request
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 100,
