@@ -6,6 +6,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const compression = require('compression');
+const cors = require('cors');
 // const session = require('express-session');
 // const cookieParser = require('cookie-parser');
 // const MongoStore = require('connect-mongo');
@@ -30,6 +31,10 @@ app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDef));
 // Middleware
 app.use(helmet());
 // Rate limiting: preventing the same ip from making too many requests
+
+// Implement cors
+app.use(cors()); // Access-Control-Allow-Origin *
+
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 100,
