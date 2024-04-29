@@ -25,16 +25,17 @@ const app = express();
 const swaggerUI = require('swagger-ui-express');
 const yaml = require('yamljs');
 
-const swaggerDef = yaml.load('./documentation.yaml');
-app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDef));
-
 // Middleware
 app.use(helmet());
 // Rate limiting: preventing the same ip from making too many requests
 
 // Implement cors
 app.use(cors()); // Access-Control-Allow-Origin *
-app.options('*', cors()) // To handle preflight request
+app.options('*', cors()); // To handle preflight request
+
+const swaggerDef = yaml.load('./documentation.yaml');
+app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDef));
+
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 100,
