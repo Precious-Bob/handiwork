@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://handiwork-api.onrender.com/",
+      "url": "https://handiwork-api.onrender.com/api/v1/",
       "description": "Render remote server"
     },
     {

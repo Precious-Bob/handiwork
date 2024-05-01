@@ -3,3 +3,5 @@ package-lock.json
 launch.json
 .env
 docs2.json
+documentation.yaml
+reference.yaml
