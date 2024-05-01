@@ -1,4 +1,5 @@
-node_modules/
-package-lock.json/
-launch.json/
+node_modules
+package-lock.json
+launch.json
 .env
+docs2.json

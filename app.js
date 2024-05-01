@@ -1,4 +1,5 @@
 const express = require('express');
+const router = express.Router();
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
@@ -18,6 +19,7 @@ const reviewRouter = require('./routes/reviewRoutes');
 const serviceProviderRouter = require('./routes/serviceProviderRoutes');
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
+const swaggerRoute = require('./routes/swaggerRoute');
 
 const app = express();
 // Middleware
@@ -29,10 +31,10 @@ app.use(cors()); // Access-Control-Allow-Origin *
 app.options('*', cors()); // To handle preflight request
 
 // Swagger setup
-const swaggerUI = require('swagger-ui-express');
-const yaml = require('yamljs');
-const swaggerDef = yaml.load('./documentation.yaml');
-app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDef));
+// const swaggerUI = require('swagger-ui-express');
+// const yaml = require('yamljs');
+// const swaggerDef = yaml.load('./documentation.yaml');
+// app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDef));
 
 const limiter = rateLimit({
   max: 100,
@@ -42,9 +44,10 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // prints the route called, only in dev env, not prod
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+// if (process.env.NODE_ENV === 'development') {
+//   app.use(morgan('dev'));
+// }
+app.use(morgan('dev'));
 
 // Body parser: reading body into req.body
 app.use(express.urlencoded({ extended: true }));
@@ -82,10 +85,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/serviceProviders', serviceProviderRouter);
 app.use('/api/v1/reviews', reviewRouter);
-
-app.get('/', (req, res) => {
-  res.redirect('/api/v1/docs');
-});
+app.use('/api/v1/docs', swaggerRoute);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));

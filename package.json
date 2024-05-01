@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "startDev": "SET NODE_ENV=development& nodemon server.js",
-    "startProd": "SET NODE_ENV=production& nodemon server.js"
+    "startProd": "SET NODE_ENV=production& nodemon server.js",
+    "start": "SET NODE_ENV=production& node server.js"
   },
   "keywords": [],
   "author": "",
