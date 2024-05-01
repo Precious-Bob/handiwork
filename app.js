@@ -24,18 +24,12 @@ const swaggerRoute = require('./routes/swaggerRoute');
 const app = express();
 // Middleware
 app.use(helmet());
-// Rate limiting: preventing the same ip from making too many requests
 
 // Implement cors
 app.use(cors()); // Access-Control-Allow-Origin *
 app.options('*', cors()); // To handle preflight request
 
-// Swagger setup
-// const swaggerUI = require('swagger-ui-express');
-// const yaml = require('yamljs');
-// const swaggerDef = yaml.load('./documentation.yaml');
-// app.use('/api/v1/docs', swaggerUI.serve, swaggerUI.setup(swaggerDef));
-
+// Rate limiting: preventing the same ip from making too many requests
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 100,
@@ -86,6 +80,14 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/serviceProviders', serviceProviderRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/docs', swaggerRoute);
+
+app.get('/', (req, res) => {
+  res
+    .status(200)
+    .send(
+      `Welcome to Handiwork API. click on <a href="https://handiwork-api.onrender.com/api/v1/docs/">/docs</a> to see the documentation and test the endpoints.`
+    );
+});
 
 app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
