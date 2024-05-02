@@ -28,8 +28,8 @@ router.get('/', (req, res) => {
       </head>
       <body>
         <div class="message">
-          🚀 Welcome to Handiwork API!<br>
-          Please visit  <a href="https://handiwork-api.onrender.com/api/v1/docs/">/docs</a> for documentation 📚
+          🚀 Welcome to the Handiwork API!<br>
+          Please visit  <a href="https://handiwork-api.onrender.com/api/v1/docs/">/docs</a> to see the documentation 📚<br> and test the endpoints
         </div>
       </body>
     </html>
