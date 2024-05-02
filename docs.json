@@ -112,10 +112,6 @@
           },
           "confirmPassword": {
             "type": "string"
-          },
-          "role": {
-            "type": "string",
-            "enum": ["user", "admin"]
           }
         }
       },

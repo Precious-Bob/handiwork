@@ -20,6 +20,7 @@ const serviceProviderRouter = require('./routes/serviceProviderRoutes');
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 const swaggerRoute = require('./routes/swaggerRoute');
+const homePage = require('./homePage');
 
 const app = express();
 // Middleware
@@ -80,41 +81,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/serviceProviders', serviceProviderRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/docs', swaggerRoute);
-
-app.get('/', (req, res) => {
-  res.status(200).send(
-    `<html>
-      <head>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #333; /* dark gray background */
-          }
-          .message {
-            color: #fff; /* white text color */
-            font-size: 36px;
-            font-weight: bold;
-          }
-          .message a { /* added this to target the link */
-            color: #0074D9; /* blue link color */
-            text-decoration: none;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="message">
-          🚀Welcome to the Handiwork API!<br>
-          Please visit <a href="/docs">/docs</a> to see the documentation📚<br> and test the endpoints.
-        </div>
-      </body>
-    </html>`
-  );
-});
+app.use('/', homePage);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on the server`));
